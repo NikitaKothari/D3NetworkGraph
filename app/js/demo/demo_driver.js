@@ -68,9 +68,6 @@
 		.force("center", d3.forceCenter(width / 2, height / 2))
 		.force("y", d3.forceY())
         .force("x", d3.forceX());
-	
-	var zoom = d3.zoom();
-		zoom.scaleExtent([0.5, 3]);
 		
 	var tooltip =d3.select("body").append("div")	
 				.attr("class", "tooltip")				
@@ -89,12 +86,15 @@
 				"nodes": [],
 				"links": []
 			};
+			var totalTraffic = 0, averageTraffic = 0;
 			data.result.data.forEach(function(dataEntry) {
 				var obj = {"id" : dataEntry.srcObj, "group" : dataEntry.srcType};
                 if(!graph.nodes.filter(function(e) { return e.id == dataEntry.srcObj; }).length > 0)
 					graph.nodes.push(obj);
 				graph.links.push({"source" : dataEntry.srcObj, "target" : dataEntry.destObj, "value" : dataEntry.packets * 32/dataEntry.traffic, "packet" : dataEntry.packets, "traffic" : dataEntry.traffic});
+				totalTraffic += dataEntry.traffic;
             });	
+			averageTraffic = totalTraffic / graph.links.length;
 			var link = svg.append("g")
 				.attr("class", "links")
 				.selectAll("line")
@@ -105,8 +105,8 @@
 				.on("mouseout", mouseoutLine)
 				.attr("stroke-width", 2)
 				.attr("class", function(d) { 
-					if(d.packet > 800) return "redClass"; 
-					else if(d.packet > 500) return "yellowClass"; 
+					if(d.traffic > averageTraffic * 1.5) return "redClass"; 
+					else if(d.traffic > averageTraffic) return "yellowClass"; 
 					else return "greenClass";
 				});
 
@@ -232,14 +232,6 @@
 									  else if(d == "green") return "Green is for normal traffic";
 									  else return d; });
 									  
-				zoom.on("zoom", function onZoomed() {
-					console.log("Zooming", d3.event);
-					var t = d3.event.transform;
-					zoomingGroup.attr("transform", t); // Using transform.toString()
-					svg.selectAll(".myGroup circle").attr("transform", "scale(" + 1/t.k + ")");
-					svg.selectAll(".myGroup .labelBox").attr("transform", "scale(" + 1/t.k + ")");
-					svg.selectAll(".myGroup .labelText").attr("transform", "scale(" + 1/t.k + ")");
-				});
         },
         "stateFetchingFailure": function(event, data) {
             addNewEntry($trafficStatusList, JSON.stringify(data.error));
