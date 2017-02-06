@@ -59,13 +59,13 @@
 	var color = d3.scaleOrdinal(d3.schemeCategory20);
 
 
-	var simulation = d3.forceSimulation()
+	var simulation = d3.forceSimulation().alphaDecay(0.01)
 		.force("link", d3.forceLink().id(function(d) { return d.id; })
 									 .distance(function(d) {return d.value * 32;})
 									 .strength(0.1))
-		.force("collide",d3.forceCollide( function(d){return d.value + 8 }).iterations(16) )
-		.force("charge", d3.forceManyBody())
-		.force("center", d3.forceCenter(width / 2, height / 2))
+		.force("collide",d3.forceCollide( function(d){return d.value + 8 }).iterations(200) )
+		.force("charge", d3.forceManyBody().strength(10))
+		.force("center", d3.forceCenter(width / 2, height / 4))
 		.force("y", d3.forceY())
         .force("x", d3.forceX());
 		
@@ -135,18 +135,14 @@
 				.links(graph.links);
 
 			function ticked() {
-				
 				 node.attr("cx", function(d) { return d.x = Math.max(radius, Math.min(width - radius, d.x)); })
 				.attr("cy", function(d) { return d.y = Math.max(radius, Math.min(height - radius, d.y)); });
-
 				
 				link.attr("x1", function(d) { return d.source.x; })
 					.attr("y1", function(d) { return d.source.y; })
 					.attr("x2", function(d) { return d.target.x; })
 					.attr("y2", function(d) { return d.target.y; });
-
-				/*node.attr("cx", function(d) { return d.x; })
-					.attr("cy", function(d) { return d.y; });*/
+			
 			}
   
 			function mouseoverCircle(d, i) {
@@ -159,7 +155,15 @@
   
 			function mouseoverLine(d, i) {
 				var metaData = link._groups[0][i].id.split("-");
-				var contentHTML = "<b>Source: </b>" + metaData[0] + "</br>" +
+				var contentHTML = "";
+				if(metaData[3] > averageTraffic * 1.5)
+					contentHTML = "<b>High Traffic</b></br>"
+				if(metaData[3] > averageTraffic)
+					contentHTML = "<b>Medium Traffic</b></br>"
+				else
+					contentHTML = "<b>Normal Traffic</b></br>"
+				
+				contentHTML += "<b>Source: </b>" + metaData[0] + "</br>" +
 								"<b>Target: </b>" + metaData[1] + "</br>" + 
 								"<b>Packets: </b>" + metaData[2] + "</br>" +
 								"<b>Traffic: </b>" + metaData[3];
@@ -171,7 +175,7 @@
 					.style("top", d3.event.pageY + "px")
 					.style("text-align", "justify")
 					.style("text-justify", "inter-word")
-					.style("height", 60 + "px") 
+					.style("height", 80 + "px") 
 					.style("width", 100 + "px");				
 				d3.select(link._groups[0][i]).attr("stroke-width",4);
 			}
@@ -260,13 +264,31 @@
 	  d.fy = null;*/
 	}
 	
+	function searchNode() {
+		//find the node
+		var selectedVal = document.getElementById('search').value;
+		var node = svg.selectAll(".node");
+		if (selectedVal == "none") {
+			node.style("stroke", "white").style("stroke-width", "1");
+		} else {
+			var selected = node.filter(function (d, i) {
+				return d.name != selectedVal;
+			});
+			selected.style("opacity", "0");
+			var link = svg.selectAll(".link")
+			link.style("opacity", "0");
+			d3.selectAll(".node, .link").transition()
+				.duration(5000)
+				.style("opacity", 1);
+		}
+	}
+	
 	d3.select("button").on("click", reset);
 	
 	function reset() {
 		svg.selectAll("g").remove();
 		df2.start();
 	}
-	
 	df2.start();
     
 })();
