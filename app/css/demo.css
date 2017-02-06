@@ -1,0 +1,62 @@
+
+.demoContainer {
+    display: flex;
+    justify-content: space-around;
+    height: 100%;
+}
+.reload {
+		margin-top: 20px;
+		margin-bottom: 10px;
+}
+.demoSectionWrapepr {
+    display: inline-block;
+    width: 98%;
+}
+
+.demoResponseList {
+    background-color: lightgrey;
+    margin: 0;
+    padding-right: 5px;
+    overflow-y: scroll;
+    height: calc(100% - 3px * 2 * 12);
+}
+
+
+.links line {
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.redClass{
+	stroke: red;
+}
+
+.greenClass{
+	stroke: green;
+}
+
+.yellowClass{
+	stroke: yellow;
+}
+.legend {                                                   
+    font-size: 12px;                                          
+}                                                           
+.rect {                                                      
+    stroke-width: 2;                                          
+} 
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
